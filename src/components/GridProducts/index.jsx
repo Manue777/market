@@ -1,7 +1,18 @@
-import { Grid, Card, CardMedia, CardContent, Typography } from "@mui/material";
+
+import { useContext } from "react";
+import { CartContext } from "../../context/CartContext";
+import { Grid, Card, CardMedia, CardContent, Typography, Button } from "@mui/material";
+import { post } from "../../services";
 
 function GridProducts(props) {
-    const { list } = props; 
+    const { list, user } = props;
+
+	const { cart, addCart, removeCart } = useContext(CartContext);
+
+	async function deleteProduct(product) {
+		const response = await post("products/remove", {product_id: product.id});
+	}
+
     return (
         <>
             <Grid container spacing={2}>
@@ -25,6 +36,35 @@ function GridProducts(props) {
 									<Typography variant="body2" color="text.secondary">
 										{product.user_name}
 									</Typography>
+									{(product.user_id !== user.id) ?
+										(cart.find((item) => item.id === product.id) === undefined ?
+											(<Button
+												fullWidth
+												onClick={() => addCart(product)}
+												variant="contained"
+												>
+													Add to cart
+												</Button>)
+												:
+											(<Button
+												fullWidth
+												onClick={() => removeCart(product.id)}
+												color="error"
+												variant="contained"
+												>
+													Remove from cart
+												</Button>)
+										)
+									: (
+										<Button
+												fullWidth
+												onClick={() => deleteProduct(product)}
+												color="error"
+												variant="contained"
+												>
+													Delete Product
+												</Button>
+									)}									
 								</CardContent>
 								</Card>
 						</Grid>
